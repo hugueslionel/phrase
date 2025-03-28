@@ -1,1 +1,237 @@
-
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Constructeur de Phrases</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #story-image {
+            max-width: 600px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #color-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .color-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        #yellow { background-color: yellow; }
+        #blue { background-color: blue; }
+        #red { background-color: red; }
+        #green { background-color: green; }
+        #word-table {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .word-cell {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #ccc;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .color-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .color-marker-yellow { background-color: yellow; }
+        .color-marker-blue { background-color: blue; }
+        .color-marker-red { background-color: red; }
+        .color-marker-green { background-color: green; }
+        #word-selector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        #word-selector img {
+            width: 100px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        #reset-button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Construis ta phrase !</h1>
+    <img id="story-image" src="" alt="Image de l'histoire">
+    
+    <div id="color-selector">
+        <div id="yellow" class="color-circle" data-color="jau"></div>
+        <div id="blue" class="color-circle" data-color="bleu"></div>
+        <div id="red" class="color-circle" data-color="rou"></div>
+        <div id="green" class="color-circle" data-color="ver"></div>
+        <div id="yellow2" class="color-circle" data-color="jau"></div>
+        <div id="blue2" class="color-circle" data-color="bleu"></div>
+    </div>
+    
+    <div id="word-table">
+        <div class="word-cell" data-index="0">
+            <div class="color-marker color-marker-yellow"></div>
+        </div>
+        <div class="word-cell" data-index="1">
+            <div class="color-marker color-marker-blue"></div>
+        </div>
+        <div class="word-cell" data-index="2">
+            <div class="color-marker color-marker-red"></div>
+        </div>
+        <div class="word-cell" data-index="3">
+            <div class="color-marker color-marker-green"></div>
+        </div>
+        <div class="word-cell" data-index="4">
+            <div class="color-marker color-marker-yellow"></div>
+        </div>
+        <div class="word-cell" data-index="5">
+            <div class="color-marker color-marker-blue"></div>
+        </div>
+    </div>
+    
+    <div id="word-selector"></div>
+    
+    <button id="reset-button">Recommencer</button>
+    
+    <script>
+        const storyImages = Array.from({length: 30}, (_, i) => `images/hist${i+1}.jpeg`);
+        const colors = {
+            'jau': Array.from({length: 5}, (_, i) => `images/jau${i+1}.jpeg`),
+            'bleu': Array.from({length: 10}, (_, i) => `images/bleu${i+1}.jpeg`),
+            'rou': Array.from({length: 10}, (_, i) => `images/rou${i+1}.jpeg`),
+            'ver': Array.from({length: 5}, (_, i) => `images/ver${i+1}.jpeg`)
+        };
+        
+        const storyImage = document.getElementById('story-image');
+        const colorCircles = document.querySelectorAll('.color-circle');
+        const wordTable = document.querySelector('#word-table');
+        const wordSelector = document.getElementById('word-selector');
+        const resetButton = document.getElementById('reset-button');
+        
+        let usedStoryImages = [];
+        let selectedWordCellIndex = null;
+        
+        function getRandomStoryImage() {
+            const availableImages = storyImages.filter(img => !usedStoryImages.includes(img));
+            if (availableImages.length === 0) {
+                usedStoryImages = [];
+                return storyImages[Math.floor(Math.random() * storyImages.length)];
+            }
+            return availableImages[Math.floor(Math.random() * availableImages.length)];
+        }
+        
+        function displayStoryImage() {
+            const image = getRandomStoryImage();
+            storyImage.src = image;
+            usedStoryImages.push(image);
+        }
+        
+        function showWordSelector(colorPrefix) {
+            wordSelector.innerHTML = '';
+            colors[colorPrefix].forEach(imgSrc => {
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.addEventListener('click', () => selectWord(img));
+                wordSelector.appendChild(img);
+            });
+        }
+        
+        function selectWord(img) {
+            if (selectedWordCellIndex !== null) {
+                const wordCell = document.querySelector(`.word-cell[data-index="${selectedWordCellIndex}"]`);
+                wordCell.innerHTML = '';
+                
+                // Restore the color marker
+                const colorMarker = document.createElement('div');
+                colorMarker.classList.add('color-marker');
+                const colorClasses = ['yellow', 'blue', 'red', 'green', 'yellow', 'blue'];
+                colorMarker.classList.add(`color-marker-${colorClasses[selectedWordCellIndex]}`);
+                wordCell.appendChild(colorMarker);
+                
+                // Add the selected image
+                const imgClone = img.cloneNode();
+                wordCell.appendChild(imgClone);
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = '✖';
+                deleteButton.style.position = 'absolute';
+                deleteButton.style.top = '0';
+                deleteButton.style.right = '0';
+                deleteButton.addEventListener('click', () => {
+                    wordCell.innerHTML = '';
+                    // Restore the color marker
+                    const colorMarker = document.createElement('div');
+                    colorMarker.classList.add('color-marker');
+                    const colorClasses = ['yellow', 'blue', 'red', 'green', 'yellow', 'blue'];
+                    colorMarker.classList.add(`color-marker-${colorClasses[selectedWordCellIndex]}`);
+                    wordCell.appendChild(colorMarker);
+                });
+                
+                wordCell.style.position = 'relative';
+                wordCell.appendChild(deleteButton);
+                
+                wordSelector.innerHTML = '';
+                selectedWordCellIndex = null;
+            }
+        }
+        
+        storyImage.addEventListener('click', displayStoryImage);
+        
+        colorCircles.forEach(circle => {
+            circle.addEventListener('click', () => {
+                const colorPrefix = circle.dataset.color;
+                showWordSelector(colorPrefix);
+                
+                const cells = document.querySelectorAll('.word-cell');
+                cells.forEach((cell, index) => {
+                    cell.addEventListener('click', () => {
+                        selectedWordCellIndex = index;
+                    });
+                });
+            });
+        });
+        
+        resetButton.addEventListener('click', () => {
+            wordTable.querySelectorAll('.word-cell').forEach((cell, index) => {
+                cell.innerHTML = '';
+                
+                // Restore the color marker
+                const colorMarker = document.createElement('div');
+                colorMarker.classList.add('color-marker');
+                const colorClasses = ['yellow', 'blue', 'red', 'green', 'yellow', 'blue'];
+                colorMarker.classList.add(`color-marker-${colorClasses[index]}`);
+                cell.appendChild(colorMarker);
+            });
+            wordSelector.innerHTML = '';
+            selectedWordCellIndex = null;
+            usedStoryImages = [];
+            displayStoryImage();
+        });
+        
+        // Initial image display
+        displayStoryImage();
+    </script>
+</body>
+</html>
