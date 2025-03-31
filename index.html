@@ -30,12 +30,14 @@
             background-color: #f0f8ff;
         }
         #story-image {
-            max-width: 600px;
+            max-width: 400px; /* Réduit de 600px à 400px */
+            max-height: 250px; /* Ajout d'une hauteur maximale */
             cursor: pointer;
             margin: 10px auto;
             display: block;
             border: 3px solid #4a90e2;
             border-radius: 10px;
+            object-fit: contain; /* Pour conserver les proportions */
         }
         
         /* Section tableau de mots */
