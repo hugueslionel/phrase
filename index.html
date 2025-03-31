@@ -165,6 +165,11 @@
             margin-bottom: 10px;
             font-size: 14px;
         }
+        
+        /* Cacher le marqueur de couleur quand une image est présente */
+        .word-cell img + .color-marker {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -206,8 +211,6 @@
             <div id="blue" class="color-circle" data-color="bleu"></div>
             <div id="red" class="color-circle" data-color="rou"></div>
             <div id="green" class="color-circle" data-color="ver"></div>
-            <div id="yellow2" class="color-circle" data-color="jau"></div>
-            <div id="blue2" class="color-circle" data-color="bleu"></div>
         </div>
     </section>
     
@@ -299,10 +302,18 @@
             const colorMarker = cell.querySelector('.color-marker');
             const colorMarkerClass = colorMarker.className;
             
-            // Add image
+            // Remove all content first
+            cell.innerHTML = '';
+            
+            // Add image first
             const img = document.createElement('img');
             img.src = imgSrc;
             cell.appendChild(img);
+            
+            // Add color marker back (will be hidden by CSS)
+            const newColorMarker = document.createElement('div');
+            newColorMarker.className = colorMarkerClass;
+            cell.appendChild(newColorMarker);
             
             // Add delete button
             const deleteButton = document.createElement('button');
